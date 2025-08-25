@@ -3,6 +3,7 @@
 #include <nanobind/stl/map.h>
 #include <nanobind/stl/pair.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/string_view.h>
 #include <nanobind/stl/vector.h>
 
 #include "algebra/expression.h"
@@ -38,7 +39,7 @@ void export_Expression(nb::module_ &m) {
            [](Expression rhs, scalar_t r) {
              rhs *= r;
              return rhs;
-           })
+           })       
       .def(
           "__iadd__",
           [](Expression &lhs, const Term &term) -> Expression & {
@@ -84,7 +85,15 @@ void export_Expression(nb::module_ &m) {
       //       "only_same_index_contractions"_a = false,
       //       "Return a vacuum normal ordered version of this expression")
       .def("is_vacuum_normal_ordered", &Expression::is_vacuum_normal_ordered,
-           "Return true if this expression is vacuum normal ordered");
+           "Return true if this expression is vacuum normal ordered")
+      .def("add_from_string", &Expression::add_from_string,
+           "Add a term to the expression from a string")
+      .def(
+      "add_from_strings",
+           [](Expression& self, const std::vector<std::string_view>& vec_strings) -> Expression& {
+              for (const auto& s : vec_strings) self.add_from_string(s);
+              return self;
+           },  nb::rv_policy::reference);
 
   m.def("operator_expr", &make_operator_expr, "label"_a, "components"_a,
         "normal_ordered"_a, "symmetry"_a = SymmetryType::Antisymmetric,

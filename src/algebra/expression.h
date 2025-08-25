@@ -56,6 +56,8 @@ public:
   // Expression normal_ordered(bool only_same_index_contractions = false) const;
 
   bool is_vacuum_normal_ordered() const;
+
+  void add_from_string(std::string_view s);
 };
 
 /// Print to an output stream
@@ -65,7 +67,7 @@ std::ostream &operator<<(std::ostream &os, const Expression &sum);
 enum class TensorSyntax { wickd, TCE };
 
 ///// Create a sum from a string
-Expression make_expression(const std::string &s, SymmetryType symmetry);
+Expression make_expression(std::string_view s, SymmetryType symmetry);
 
 Expression make_operator_expr(const std::string &label,
                               const std::vector<std::string> &components,

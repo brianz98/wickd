@@ -20,7 +20,7 @@ std::vector<std::string> split(const std::string &s,
                                std::regex re = std::regex("[\\s,]+"));
 
 /// Find all occurences of a pattern
-std::vector<std::string> findall(const std::string &s, const std::regex &regex);
+std::vector<std::string> findall(std::string_view s, const std::regex &regex);
 
 /// Split indices
 std::vector<std::string> split_indices(const std::string &s);

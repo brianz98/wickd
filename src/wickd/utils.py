@@ -9,8 +9,7 @@ def string_to_expr(s):
     it into an Expression object
     """
     expr = wickd.Expression()
-    for line in s.split("\n"):
-        expr += wickd.expression(line)
+    expr.add_from_strings([l for l in s.split("\n")])
     return expr
 
 

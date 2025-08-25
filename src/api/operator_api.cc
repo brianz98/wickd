@@ -1,4 +1,5 @@
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/map.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
 
@@ -30,6 +31,13 @@ void export_OperatorExpression(nb::module_ &m) {
       .def("add", &OperatorExpression::add)
       .def("adjoint", &OperatorExpression::adjoint)
       .def("add2", &OperatorExpression::add2)
+      .def(
+          "terms",
+          [](const OperatorExpression &self) -> decltype(auto) {
+            return self.terms();
+          },
+          nb::rv_policy::reference_internal)
+      .def("__len__", &OperatorExpression::size)
       .def("__add__",
            [](OperatorExpression rhs, const OperatorExpression &lhs) {
              rhs += lhs;
@@ -84,4 +92,11 @@ void export_OperatorExpression(nb::module_ &m) {
         "Creates the Baker-Campbell-Hausdorff "
         "expansion of exp(-B) A exp(B) truncated at "
         "a given order n");
+}
+
+void export_OperatorProduct(nb::module_ &m) {
+  nb::class_<OperatorProduct>(m, "OperatorProduct")
+      .def(nb::init<>())
+      .def("__len__", &OperatorProduct::size)
+      .def("num_ops", &OperatorProduct::num_ops);
 }

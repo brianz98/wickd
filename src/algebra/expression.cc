@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <regex>
 
 #include "helpers/helpers.h"
 #include "helpers/orbital_space.h"
@@ -12,46 +13,6 @@
 #include "term.h"
 
 Expression::Expression() : Algebra<Expression, SymbolicTerm, scalar_t>() {}
-
-// void Expression::add(const Term &term) {
-//   SymbolicTerm symterm = term.symterm();
-//   auto search = terms_.find(symterm);
-
-//   if (search != terms_.end()) {
-//     /// Found, then just add the factor to the existing term
-//     search->second += term.coefficient();
-//     if (search->second == 0) {
-//       terms_.erase(search);
-//     }
-//   } else {
-//     terms_[symterm] = term.coefficient();
-//   }
-// }
-
-// void Expression::add(const std::pair<SymbolicTerm, scalar_t> &term_factor,
-//                      scalar_t scale) {
-
-//   const SymbolicTerm &term = term_factor.first;
-//   scalar_t factor = term_factor.second;
-
-//   auto search = terms_.find(term);
-
-//   if (search != terms_.end()) {
-//     /// Found, then just add the factor to the existing term
-//     search->second += scale * factor;
-//     if (search->second == 0) {
-//       terms_.erase(search);
-//     }
-//   } else {
-//     terms_[term] = scale * factor;
-//   }
-// }
-
-// void Expression::add(const Expression &expr, scalar_t scale) {
-//   for (const auto &kv : expr.terms()) {
-//     add(kv, scale);
-//   }
-// }
 
 Expression &Expression::canonicalize() {
   std::map<SymbolicTerm, scalar_t> canonical_terms;
@@ -193,6 +154,11 @@ Expression::to_manybody_equation(const std::string &label) const {
   return result;
 }
 
+void Expression::add_from_string(std::string_view s){
+    auto expr = make_expression(s,SymmetryType::Antisymmetric);
+    *this += expr;
+}
+
 std::ostream &operator<<(std::ostream &os, const Expression &sum) {
   os << sum.str();
   return os;
@@ -246,7 +212,7 @@ Expression make_operator_expr(const std::string &label,
   return result;
 }
 
-Expression make_expression(const std::string &s, SymmetryType symmetry) {
+Expression make_expression(std::string_view s, SymmetryType symmetry) {
 
   TensorSyntax syntax = TensorSyntax::wickd;
   Expression sum;
@@ -267,7 +233,7 @@ Expression make_expression(const std::string &s, SymmetryType symmetry) {
   auto tensors = findall(s, tensor_re);
 
   // use the normal_ordered_re to check if the string is already normal ordered
-  auto is_normal_ordered = std::regex_search(s, normal_ordered_re);
+  auto is_normal_ordered = std::regex_search(s.begin(), s.end(), normal_ordered_re);
 
   SymbolicTerm term;
   term.set_normal_ordered(is_normal_ordered);

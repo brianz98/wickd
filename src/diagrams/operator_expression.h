@@ -35,6 +35,7 @@ public:
 
   using Algebra<OperatorExpression, OperatorProduct, scalar_t>::operator*=;
   using Algebra<OperatorExpression, OperatorProduct, scalar_t>::is_equal;
+  using Algebra<OperatorExpression, OperatorProduct, scalar_t>::terms;
 
   /// Return a string representation of the operator
   std::string str() const;
