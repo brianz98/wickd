@@ -1,0 +1,3 @@
+1/288 eta1^{a3}_{a2} t^{c0,c1}_{a0,v0} t^{c2,c3,c4,c5}_{a3,v1,v2,v3} v^{c6,a2}_{a1,v4} a+(a0) a+(a1) a+(v0) a+(v1) a+(v2) a+(v3) a+(v4) a-(c6) a-(c5) a-(c4) a-(c3) a-(c2) a-(c1) a-(c0)
+-1/288 eta1^{a3}_{a2} t^{c0,c1}_{a3,v0} t^{c2,c3,c4,c5}_{a0,v1,v2,v3} v^{c6,a2}_{a1,v4} a+(a0) a+(a1) a+(v0) a+(v1) a+(v2) a+(v3) a+(v4) a-(c6) a-(c5) a-(c4) a-(c3) a-(c2) a-(c1) a-(c0)
+-1/288 t^{c0,c1}_{a0,v0} t^{c2,c3,c4,c5}_{a1,v1,v2,v3} v^{c6,a3}_{a2,v4} a+(a0) a+(a1) a+(a2) a+(v0) a+(v1) a+(v2) a+(v3) a+(v4) a-(a3) a-(c6) a-(c5) a-(c4) a-(c3) a-(c2) a-(c1) a-(c0)

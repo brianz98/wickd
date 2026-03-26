@@ -65,7 +65,8 @@ std::string Expression::str() const {
       }
       // rational(1,1).str() returns "", so we need to handle the case of
       // a pure scalar term with no operator
-      if ((factor_str.size() > 1) and (factor_str != "-")) {
+      if ((factor_str.size() > 0) and (factor_str != "-") and
+          (factor_str != "+")) {
         factor_str += " ";
       }
     } else {
@@ -154,9 +155,9 @@ Expression::to_manybody_equation(const std::string &label) const {
   return result;
 }
 
-void Expression::add_from_string(std::string_view s){
-    auto expr = make_expression(s,SymmetryType::Antisymmetric);
-    *this += expr;
+void Expression::add_from_string(std::string_view s) {
+  auto expr = make_expression(s, SymmetryType::Antisymmetric);
+  *this += expr;
 }
 
 std::ostream &operator<<(std::ostream &os, const Expression &sum) {
@@ -233,7 +234,8 @@ Expression make_expression(std::string_view s, SymmetryType symmetry) {
   auto tensors = findall(s, tensor_re);
 
   // use the normal_ordered_re to check if the string is already normal ordered
-  auto is_normal_ordered = std::regex_search(s.begin(), s.end(), normal_ordered_re);
+  auto is_normal_ordered =
+      std::regex_search(s.begin(), s.end(), normal_ordered_re);
 
   SymbolicTerm term;
   term.set_normal_ordered(is_normal_ordered);

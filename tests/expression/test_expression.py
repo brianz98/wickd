@@ -129,6 +129,60 @@ def test_expression_dot_and_norm():
     assert expr3.dot(expr2) == w.rational(-1)
 
 
+def test_str_roundtrip_positive_integer_coefficient():
+    """Regression test for Expression::str() dropping the space between a
+    positive single-digit integer coefficient and the following tensor name.
+
+    Root cause (expression.cc:68):
+        if ((factor_str.size() > 1) and (factor_str != "-")) {
+            factor_str += " ";
+        }
+    The guard `> 1` fails for a one-character coefficient string such as "2",
+    so the serialized form becomes "2f^..." instead of "2 f^...".  The parser
+    then reads the leading "2" as part of the tensor label, making round-trips
+    through str() / string_to_expr() produce a different Expression.
+    """
+    w.reset_space()
+    w.add_space("o", "fermion", "occupied", ["i", "j", "k", "l"])
+    w.add_space("v", "fermion", "unoccupied", ["a", "b", "c", "d"])
+
+    # Build a known expression whose first term has coefficient 2.
+    # The string "2 f^{o0}_{o1} t^{o1}_{v0}" is valid input for string_to_expr,
+    # so expr1 is well-formed.
+    expr1 = w.utils.string_to_expr("2 f^{o0}_{o1} t^{o1}_{v0}")
+
+    # The serialized form must have a space after the coefficient so that
+    # string_to_expr can parse it back faithfully.
+    assert str(expr1) == "2 f^{o0}_{o1} t^{o1}_{v0}", (
+        "str(Expression) must emit a space between coefficient '2' and the "
+        "first tensor name; got: " + repr(str(expr1))
+    )
+
+    # Round-trip: parse(str(expr)) must equal the original expression.
+    expr2 = w.utils.string_to_expr(str(expr1))
+    assert expr1 == expr2, (
+        "str(Expression) → string_to_expr round-trip failed for coefficient 2"
+    )
+
+    # The same must hold for all single-digit positive integer coefficients.
+    for n in range(2, 10):
+        e1 = w.utils.string_to_expr(f"{n} f^{{o0}}_{{o1}} t^{{o1}}_{{v0}}")
+        e2 = w.utils.string_to_expr(str(e1))
+        assert e1 == e2, (
+            f"Round-trip failed for coefficient {n}: "
+            f"str produced {repr(str(e1))}"
+        )
+
+    # Coefficients that already serialise correctly must still work:
+    # +/- sign present (second-or-later term), fraction, coefficient 1, -1.
+    for coeff_str in ["1/2", "-1/3", "3/7"]:
+        e1 = w.utils.string_to_expr(
+            f"{coeff_str} f^{{o0}}_{{o1}} t^{{o1}}_{{v0}}"
+        )
+        e2 = w.utils.string_to_expr(str(e1))
+        assert e1 == e2, f"Round-trip failed for coefficient {coeff_str!r}"
+
+
 if __name__ == "__main__":
     test_expression()
     test_expression2()
@@ -136,3 +190,4 @@ if __name__ == "__main__":
     test_expression4()
     test_expression5()
     test_expression_dot_and_norm()
+    test_str_roundtrip_positive_integer_coefficient()

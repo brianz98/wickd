@@ -31,6 +31,16 @@ wheel.py-api = "cp312"
 # The build type to use when building the project. Valid values are "Debug", "Release", "MinSizeRel", and "RelWithDebInfo".
 cmake.build-type = "Release"
 
+[tool.pytest.ini_options]
+# Tests marked @pytest.mark.slow are excluded from the default run.
+# To run them: pytest -m slow
+# To run everything:  pytest
+# To exclude slow:    pytest -m "not slow"
+addopts = "-m 'not slow'"
+markers = [
+    "slow: tests that take >5 s and are excluded from the default run",
+]
+
 [tool.cibuildwheel]
 # Necessary to see build output from the actual compilation
 build-verbosity = 1
