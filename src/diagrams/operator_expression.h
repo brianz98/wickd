@@ -9,9 +9,9 @@
 
 /// A class to represent operators
 class OperatorExpression
-    : public Algebra<OperatorExpression, OperatorProduct, scalar_t> {
+    : public Algebra<OperatorExpression, OperatorProduct, scalar_t, true> {
   using opexpr_t =
-      Algebra<OperatorExpression, OperatorProduct, scalar_t>::vecspace_t;
+      Algebra<OperatorExpression, OperatorProduct, scalar_t, true>::vecspace_t;
 
 public:
   /// Construct an empty sum
@@ -33,9 +33,9 @@ public:
     return expr;
   }
 
-  using Algebra<OperatorExpression, OperatorProduct, scalar_t>::operator*=;
-  using Algebra<OperatorExpression, OperatorProduct, scalar_t>::is_equal;
-  using Algebra<OperatorExpression, OperatorProduct, scalar_t>::terms;
+  using Algebra<OperatorExpression, OperatorProduct, scalar_t, true>::operator*=;
+  using Algebra<OperatorExpression, OperatorProduct, scalar_t, true>::is_equal;
+  using Algebra<OperatorExpression, OperatorProduct, scalar_t, true>::terms;
 
   /// Return a string representation of the operator
   std::string str() const;

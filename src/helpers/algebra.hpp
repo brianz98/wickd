@@ -1,17 +1,25 @@
 #pragma once
 
 #include <cmath>
+#include <map>
+#include <type_traits>
 #include <vector>
 
 #include "helpers/helpers.h"
+#include "helpers/unordered_dense.h"
 
-/// Represents a vector space of objects of type T over the field F
-template <typename Derived, class T, class F> class Algebra {
+/// Represents a vector space of objects of type T over the field F.
+/// Set UseHashMap=true to use ankerl::unordered_dense::map (requires a hash
+/// specialization for T) instead of std::map.
+template <typename Derived, class T, class F, bool UseHashMap = false>
+class Algebra {
 
 public:
   /// @brief A type used to store an element of the algebra. Uses a map from
   /// elements of type T to field elements of type F
-  using vecspace_t = std::map<T, F>;
+  using vecspace_t =
+      std::conditional_t<UseHashMap, ankerl::unordered_dense::map<T, F>,
+                         std::map<T, F>>;
 
   /// @brief Default constructor
   Algebra() {}

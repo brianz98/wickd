@@ -20,3 +20,15 @@ public:
 };
 
 OperatorProduct operator*(const OperatorProduct &l, const OperatorProduct &r);
+
+template <>
+struct ankerl::unordered_dense::hash<OperatorProduct> {
+  uint64_t operator()(OperatorProduct const &op) const noexcept {
+    uint64_t h = 0;
+    for (const auto &o : op) {
+      uint64_t oh = ankerl::unordered_dense::hash<Operator>{}(o);
+      h ^= oh + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
+    }
+    return h;
+  }
+};
