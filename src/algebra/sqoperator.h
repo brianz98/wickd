@@ -13,7 +13,7 @@ enum class SQOperatorType {
 
 class SQOperator {
 
-  using index_map_t = std::map<Index, Index>;
+  using index_map_t = ::index_map_t;
 
 public:
   SQOperator(SQOperatorType type, Index index);

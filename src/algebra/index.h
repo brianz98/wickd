@@ -1,9 +1,10 @@
 #pragma once
 
-#include <map>
+#include <cstdint>
 #include <string>
 #include <vector>
 
+#include "helpers/unordered_dense.h"
 #include "wickd-def.h"
 
 /**
@@ -62,8 +63,20 @@ private:
   std::pair<int, int> index_;
 };
 
-// A Index -> Index map used for reindexing
-using index_map_t = std::map<Index, Index>;
+// Hash specialization for Index (pair<int,int>) — required for unordered_dense.
+template <>
+struct ankerl::unordered_dense::hash<Index> {
+    using is_avalanching = void;
+    uint64_t operator()(Index const& idx) const noexcept {
+        // Encode space and pos as a 64-bit integer and hash it via wyhash.
+        uint64_t v = (static_cast<uint64_t>(idx.space()) << 32) |
+                     static_cast<uint64_t>(static_cast<uint32_t>(idx.pos()));
+        return ankerl::unordered_dense::hash<uint64_t>{}(v);
+    }
+};
+
+// A Index -> Index map used for reindexing (flat open-addressed hash map)
+using index_map_t = ankerl::unordered_dense::map<Index, Index>;
 
 // Helper functions
 

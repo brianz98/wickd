@@ -179,7 +179,7 @@ scalar_t SymbolicTerm::canonicalize() {
   // vector to keep track of how many indices in each space
   std::vector<int> tens_index_count(orbital_subspaces->num_spaces(), 0);
   index_map_t index_map;
-  std::map<Index, bool> is_operator_index;
+  ankerl::unordered_dense::map<Index, bool> is_operator_index;
 
   // a. Assign indices to free operators
   for (const auto &sqop : operators_) {
