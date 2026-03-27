@@ -172,8 +172,7 @@ WickTheorem::canonicalize_contraction_graph(
 
   PRINT(
       PrintLevel::Detailed, cout << "\n  Commutable operator matrix:" << endl;
-      for (const auto row
-           : commutable) {
+      for (const auto row : commutable) {
         cout << "    ";
         PRINT_ELEMENTS(row);
         cout << endl;
@@ -222,24 +221,55 @@ WickTheorem::canonicalize_contraction_graph(
                                    << " valid contraction permutations\n"
                                    << endl;);
 
-  // store all the possible graphs
-  std::vector<std::pair<int, int>> graphs;
-  for (const auto &[o, ops_perm] : enumerate(ops_perms)) {
-    for (const auto &[c, con_perm] : enumerate(con_perms)) {
-      graphs.push_back(std::pair(o, c));
+  // Decoupled two-pass search
+  // graph_less is lexicographic: operators first, then contractions.
+  // We exploit this to avoid forming the full nops! × c! Cartesian product.
+
+  // Pass 1: find the minimum operator sequence among all valid op permutations.
+  // Cost: O(|ops_perms| × nops).
+  auto ops_seq_less = [&](int a, int b) -> bool {
+    for (int i = 0; i < nops; i++) {
+      if (ops[ops_perms[a][i]] < ops[ops_perms[b][i]])
+        return true;
+      if (ops[ops_perms[b][i]] < ops[ops_perms[a][i]])
+        return false;
+    }
+    return false; // equal
+  };
+
+  int min_ops_idx = 0;
+  for (int a = 1; a < static_cast<int>(ops_perms.size()); a++) {
+    if (ops_seq_less(a, min_ops_idx))
+      min_ops_idx = a;
+  }
+
+  // Pass 2: collect the tie set - all op permutations with the same minimum
+  // operator sequence.  k == 1 whenever the operators are distinguishable,
+  // which is the common case.
+  std::vector<int> tied_ops;
+  for (int a = 0; a < static_cast<int>(ops_perms.size()); a++) {
+    if ((not ops_seq_less(a, min_ops_idx)) and
+        (not ops_seq_less(min_ops_idx, a))) {
+      tied_ops.push_back(a);
     }
   }
 
-  PRINT(PrintLevel::Detailed,
-        cout << "  Found " << graphs.size() << " valid graphs" << endl;);
+  PRINT(PrintLevel::Detailed, cout << "  Tie set size: " << tied_ops.size()
+                                   << " op permutation(s)\n"
+                                   << endl;);
 
-  // sort all the graphs
-  std::sort(graphs.begin(), graphs.end(),
-            [&](const std::pair<int, int> &l, const std::pair<int, int> &r) {
-              return graph_less(l, r, ops_perms, con_perms, ops, contractions);
-            });
+  // Pass 3: among the |tied_ops| × c! pairs scan for the overall minimum.
+  std::pair<int, int> best_graph{tied_ops[0], 0};
+  for (int oi : tied_ops) {
+    for (int ci = 0; ci < static_cast<int>(con_perms.size()); ci++) {
+      std::pair<int, int> candidate{oi, ci};
+      if (graph_less(candidate, best_graph, ops_perms, con_perms, ops,
+                     contractions))
+        best_graph = candidate;
+    }
+  }
 
-  const auto [canonical_ops_perm_idx, canonical_contr_perm_idx] = graphs[0];
+  const auto [canonical_ops_perm_idx, canonical_contr_perm_idx] = best_graph;
 
   // Get the sign associated with rearranging the operators
   const scalar_t canonical_sign = ops_perms_sign[canonical_ops_perm_idx];

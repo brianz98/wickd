@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include "operator_product.h"
 
 using namespace std;
