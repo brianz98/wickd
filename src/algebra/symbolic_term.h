@@ -137,3 +137,19 @@ std::ostream &operator<<(std::ostream &os,
 
 std::pair<Product<SQOperator>, bool> operator_product(const SymbolicTerm &lhs,
                                                       const SymbolicTerm &rhs);
+
+template <>
+struct ankerl::unordered_dense::hash<SymbolicTerm> {
+  uint64_t operator()(SymbolicTerm const &t) const noexcept {
+    uint64_t h = 0; // normal_ordered_ is not part of operator==
+    for (const auto &op : t.ops()) {
+      uint64_t oh = ankerl::unordered_dense::hash<SQOperator>{}(op);
+      h ^= oh + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
+    }
+    for (const auto &tensor : t.tensors()) {
+      uint64_t oh = ankerl::unordered_dense::hash<Tensor>{}(tensor);
+      h ^= oh + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
+    }
+    return h;
+  }
+};

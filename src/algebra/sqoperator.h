@@ -89,3 +89,13 @@ std::ostream &operator<<(std::ostream &os, const SQOperator &op);
 
 /// Canonicalize a product of operators
 scalar_t canonicalize_sqops(Product<SQOperator> &sqops, bool reversed);
+
+template <>
+struct ankerl::unordered_dense::hash<SQOperator> {
+  using is_avalanching = void;
+  uint64_t operator()(SQOperator const &op) const noexcept {
+    uint64_t h1 = ankerl::unordered_dense::hash<Index>{}(op.index());
+    uint64_t h2 = static_cast<uint64_t>(static_cast<int>(op.type()));
+    return h1 ^ (h2 + 0x9e3779b97f4a7c15ULL + (h1 << 6) + (h1 >> 2));
+  }
+};

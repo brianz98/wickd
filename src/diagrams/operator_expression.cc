@@ -7,7 +7,7 @@
 #include "operator_expression.h"
 
 OperatorExpression::OperatorExpression()
-    : Algebra<OperatorExpression, OperatorProduct, scalar_t, true>() {}
+    : Algebra<OperatorExpression, OperatorProduct, scalar_t>() {}
 
 OperatorExpression::OperatorExpression(
     const std::vector<OperatorProduct> &vec_vec_dop, scalar_t factor) {

@@ -104,3 +104,20 @@ Tensor make_tensor_from_str(const std::string &index, SymmetryType symmetry);
 
 /// Print to an output stream
 std::ostream &operator<<(std::ostream &os, const Tensor &tensor);
+
+template <>
+struct ankerl::unordered_dense::hash<Tensor> {
+  uint64_t operator()(Tensor const &t) const noexcept {
+    uint64_t h = ankerl::unordered_dense::hash<std::string>{}(t.label());
+    for (const auto &idx : t.lower()) {
+      uint64_t oh = ankerl::unordered_dense::hash<Index>{}(idx);
+      h ^= oh + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
+    }
+    for (const auto &idx : t.upper()) {
+      uint64_t oh = ankerl::unordered_dense::hash<Index>{}(idx);
+      h ^= oh + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
+    }
+    // symmetry and conjugate are NOT part of operator==, so omit them
+    return h;
+  }
+};
