@@ -56,7 +56,7 @@ std::vector<std::string> split(const std::string &s, regex re) {
 std::vector<std::string> findall(std::string_view s, const std::regex &regex) {
   std::vector<std::string> result;
   try {
-    std::cregex_iterator next(s.begin(), s.end(), regex);
+    std::cregex_iterator next(s.data(), s.data() + s.size(), regex);
     std::cregex_iterator end;
     std::vector<std::string> matches;
     for (; next != end; ++next) {
