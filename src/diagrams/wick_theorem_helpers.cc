@@ -47,6 +47,16 @@ void print_key(std::tuple<int, int, bool, int> key, int n) {
        << "] -> " << n << endl;
 }
 
+void print_key(uint32_t key, int n) {
+  int v        = static_cast<int>(key >> 16);
+  int s        = static_cast<int>((key >> 9) & 0x7f);
+  bool creation = (key >> 8) & 1;
+  int i        = static_cast<int>(key & 0xff);
+  cout << "key[graph_matrix = " << v << ", space = " << s
+       << ", creation = " << creation << ", num = " << i << "] -> " << n
+       << endl;
+}
+
 void print_contraction(const OperatorProduct &ops,
                        const std::vector<Tensor> &tensors,
                        const std::vector<std::vector<bool>> &bit_map_vec,

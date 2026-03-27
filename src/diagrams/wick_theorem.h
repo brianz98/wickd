@@ -1,8 +1,11 @@
 #pragma once
 
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "helpers/unordered_dense.h"
 
 class SQOperator;
 class Tensor;
@@ -167,13 +170,13 @@ private:
 
   /// Return the tensors and operators correspoding to a product of operators
   std::tuple<std::vector<Tensor>, std::vector<SQOperator>,
-             std::map<std::tuple<int, int, bool, int>, int>>
+             ankerl::unordered_dense::map<uint32_t, int>>
   contraction_tensors_sqops(const OperatorProduct &ops);
 
   std::vector<int>
   elements_vec_to_pos(const ElementaryContraction &elements_vec,
                       std::vector<GraphMatrix> &ops_offset,
-                      std::map<std::tuple<int, int, bool, int>, int> &op_map,
+                      ankerl::unordered_dense::map<uint32_t, int> &op_map,
                       bool creation);
 
   /// Return the combinatorial factor corresponding to a contraction pattern
