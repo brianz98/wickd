@@ -86,7 +86,7 @@ if(Boost_FOUND)
     add_definitions(-DUSE_BOOST_1024_INT)
 
     # Add Boost's include directories to the build
-    include_directories(${Boost_INCLUDE_DIRS})
+    include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 else()
     message(STATUS "Boost not found")
 endif()
