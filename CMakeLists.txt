@@ -76,6 +76,7 @@ nanobind_add_module(
 install(TARGETS _wickd LIBRARY DESTINATION wickd)
 
 # Look for the Boost libraries
+cmake_policy(SET CMP0167 NEW)
 find_package(Boost)
 
 # Check if Boost was found
