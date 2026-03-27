@@ -56,7 +56,9 @@ public:
   Tensor adjoint() const;
 
   /// Return the rank of the tensor
-  int rank() const { return lower_.size() + upper_.size(); }
+  std::int64_t rank() const {
+    return static_cast<std::int64_t>(lower_.size() + upper_.size());
+  }
 
   /// return the signature (number of upper/lower indices in each space)
   std::vector<std::pair<int, int>> signature() const;

@@ -11,11 +11,11 @@ int OperatorProduct::num_ops() const {
 }
 
 scalar_t OperatorProduct::canonicalize() {
-  int nperm = 0;
-  int n = elements_.size();
-  for (int i = 0; i < n - 1; i++) {
+  std::int64_t nperm = 0;
+  std::int64_t n = static_cast<std::int64_t>(elements_.size());
+  for (std::int64_t i = 0; i < n - 1; i++) {
     // Last i elements are already in place
-    for (int j = 0; j < n - i - 1; j++) {
+    for (std::int64_t j = 0; j < n - i - 1; j++) {
       if (operator_noncommuting_less(elements_[j + 1], elements_[j])) {
         nperm += elements_[j].num_ops() * elements_[j + 1].num_ops();
         swap(elements_[j], elements_[j + 1]);

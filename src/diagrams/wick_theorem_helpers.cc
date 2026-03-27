@@ -93,7 +93,6 @@ void print_contraction(const OperatorProduct &ops,
 
   // 5. Show the indices of the tensors involved
   std::map<Index, int> index_map;
-  int k = 0;
   for (int k = 0; k < sqops.size(); k++) {
     index_map[sqops[k].index()] = k;
   }

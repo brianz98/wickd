@@ -54,7 +54,9 @@ public:
   //                          const std::vector<char> &elementary_spaces);
 
   /// Return the number of elementary spaces
-  int num_spaces() { return static_cast<int>(space_info_.size()); }
+  std::int64_t num_spaces() {
+    return static_cast<std::int64_t>(space_info_.size());
+  }
 
   /// The label of an orbital space
   char label(int pos) const;
@@ -89,10 +91,10 @@ private:
   std::vector<OrbitalSpace> space_info_;
 
   /// Maps a space label to its index
-  std::map<char, int> label_to_pos_;
+  std::map<char, std::int64_t> label_to_pos_;
 
   /// Maps orbital indices to a composite space
-  std::map<std::string, int> indices_to_pos_;
+  std::map<std::string, std::int64_t> indices_to_pos_;
 };
 
 extern std::shared_ptr<OrbitalSpaceInfo> orbital_subspaces;

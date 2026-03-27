@@ -40,7 +40,7 @@ public:
   void add(const Tensor &tensor);
 
   /// Return the number of SQ operators
-  int nops() const;
+  std::int64_t nops() const;
 
   /// @return is the SQ operator product normal ordered?
   bool normal_ordered() const { return normal_ordered_; }

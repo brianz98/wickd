@@ -55,7 +55,9 @@ void SymbolicTerm::add(const Product<SQOperator> &ops) {
 
 void SymbolicTerm::add(const Tensor &tensor) { tensors_.push_back(tensor); }
 
-int SymbolicTerm::nops() const { return operators_.size(); }
+std::int64_t SymbolicTerm::nops() const {
+  return static_cast<std::int64_t>(operators_.size());
+}
 
 SymbolicTerm SymbolicTerm::adjoint() const {
   SymbolicTerm result;
@@ -128,7 +130,7 @@ scalar_t SymbolicTerm::canonicalize() {
     const std::string &label = tensor.label();
 
     // b) rank
-    int rank = tensor.rank();
+    auto rank = tensor.rank();
 
     // c) number of indices per space
     std::vector<int> num_low = num_indices_per_space(tensor.lower());
@@ -147,12 +149,10 @@ scalar_t SymbolicTerm::canonicalize() {
     WPRINT(
         std::cout << "\nScore = " << label << " " << rank << " ";
         PRINT_ELEMENTS(num_low); std::cout << " "; PRINT_ELEMENTS(num_upp);
-        std::cout << " "; for (const auto &str_vec
-                               : lower_conn) {
+        std::cout << " "; for (const auto &str_vec : lower_conn) {
           std::cout << str_vec.first << " ";
           PRINT_ELEMENTS(str_vec.second);
-        } for (const auto &str_vec
-               : upper_conn) {
+        } for (const auto &str_vec : upper_conn) {
           std::cout << " " << str_vec.first << " ";
           PRINT_ELEMENTS(str_vec.second);
         });
@@ -278,12 +278,10 @@ scalar_t SymbolicTerm::simplify() {
       ul_bit_masks.push_back(std::make_pair(upper_bits, lower_bits));
     }
     WPRINT(
-        for (const auto &v
-             : equivalent_classes) {
+        for (const auto &v : equivalent_classes) {
           PRINT_ELEMENTS(v);
           cout << endl;
-        } for (const auto &[ub, lb]
-               : ul_bit_masks) {
+        } for (const auto &[ub, lb] : ul_bit_masks) {
           cout << ub << endl;
           cout << lb << endl;
         });
