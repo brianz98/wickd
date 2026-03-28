@@ -209,10 +209,10 @@ inline void mum(std::uint64_t* a, std::uint64_t* b) {
 }
 
 [[maybe_unused]] [[nodiscard]] inline auto hash(void const* key, std::size_t len) -> std::uint64_t {
-    static constexpr auto secret = std::array{UINT64_C(0xa0761d6478bd642f),
-                                              UINT64_C(0xe7037ed1a0b428db),
-                                              UINT64_C(0x8ebc6af09c88c6e3),
-                                              UINT64_C(0x589965cc75374cc3)};
+    static constexpr std::array<std::uint64_t, 4> secret = {UINT64_C(0xa0761d6478bd642f),
+                                                            UINT64_C(0xe7037ed1a0b428db),
+                                                            UINT64_C(0x8ebc6af09c88c6e3),
+                                                            UINT64_C(0x589965cc75374cc3)};
 
     auto const* p = static_cast<std::uint8_t const*>(key);
     std::uint64_t seed = secret[0];
