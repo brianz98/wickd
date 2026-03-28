@@ -6,11 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Ensure UTF-8 encoding support for MSVC
-if(MSVC)
-  add_compile_options(/utf-8 /W4)
-endif()
-
 if(NOT SKBUILD)
   message(WARNING "\
   This CMake file is meant to be executed using 'scikit-build'. Running
