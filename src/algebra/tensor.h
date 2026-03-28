@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "helpers/hash_utils.hpp"
 #include "index.h"
 #include "wickd-def.h"
 
@@ -42,6 +43,9 @@ public:
 
   /// Set the upper indices
   void set_upper(const std::vector<Index> &indices) { upper_ = indices; }
+
+  /// Set the complex conjugate flag
+  void set_complex_conjugate(bool val) { is_complex_conjugate_ = val; }
 
   /// Return a vector containing all indices
   std::vector<Index> indices() const;
@@ -104,3 +108,15 @@ Tensor make_tensor_from_str(const std::string &index, SymmetryType symmetry);
 
 /// Print to an output stream
 std::ostream &operator<<(std::ostream &os, const Tensor &tensor);
+
+/// Hash function for Tensor
+template <> struct ankerl::unordered_dense::hash<Tensor> {
+  uint64_t operator()(Tensor const &t) const noexcept {
+    auto h = hash_utils::hash_first(t.label());
+    hash_utils::hash_range(h, t.lower());
+    hash_utils::hash_range(h, t.upper());
+    hash_utils::hash_combine(h, static_cast<int>(t.symmetry()));
+    hash_utils::hash_combine(h, t.is_complex_conjugate());
+    return h;
+  }
+};

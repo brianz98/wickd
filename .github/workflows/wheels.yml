@@ -25,7 +25,7 @@ jobs:
       - name: Check metadata
         run: pipx run twine check dist/*
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: dist-sdist
           path: dist/*.tar.gz
@@ -36,8 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14] 
-        # windows-latest, ubuntu-latest
+        os: [macos-14, ubuntu-latest]
         
     steps:
       - uses: actions/checkout@v5
@@ -51,7 +50,7 @@ jobs:
         shell: bash
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: dist-${{ matrix.os }}
           path: dist
@@ -67,7 +66,7 @@ jobs:
 
     steps:
       - uses: actions/setup-python@v5
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           pattern: dist-*
           merge-multiple: true

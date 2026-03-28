@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <iostream>
 
+#include "helpers/unordered_dense.h"
+
 #define FMT_HEADER_ONLY
 #include <fmt/core.h> // for fmt::format
 
@@ -29,6 +31,7 @@
   }
 
 void print_key(std::tuple<int, int, bool, int> key, int n);
+void print_key(OpKey key, int n);
 void print_contraction(const OperatorProduct &ops,
                        const std::vector<Tensor> &tensors,
                        const std::vector<std::vector<bool>> &bit_map_vec,
@@ -229,10 +232,10 @@ WickTheorem::evaluate_contraction(const OperatorProduct &ops,
   // (true = cre, false = ann), and an index and maps it to the operators as
   // they are stored in a vector:
   //
-  //  std::map<std::tuple<int, int, bool, int>, int> op_map;
-  //                       op space cre    n
+  //  ankerl::unordered_dense::map<OpKey, int> op_map;
+  //  key = {v, s, creation, i}
   //
-  std::map<std::tuple<int, int, bool, int>, int> &op_map =
+  ankerl::unordered_dense::map<OpKey, int> &op_map =
       std::get<2>(tensors_sqops_op_map);
 
   // 2. Apply the contractions to the second quantized operators and add new
@@ -420,13 +423,18 @@ WickTheorem::evaluate_contraction(const OperatorProduct &ops,
   return std::make_pair(term, sign * factor * comb_factor);
 }
 
+static inline OpKey make_op_key(int v, int s, bool creation, int i) {
+  return {static_cast<uint16_t>(v), static_cast<uint16_t>(s),
+          static_cast<uint16_t>(creation ? 1 : 0), static_cast<uint16_t>(i)};
+}
+
 std::tuple<std::vector<Tensor>, std::vector<SQOperator>,
-           std::map<std::tuple<int, int, bool, int>, int>>
+           ankerl::unordered_dense::map<OpKey, int>>
 WickTheorem::contraction_tensors_sqops(const OperatorProduct &ops) {
 
   std::vector<SQOperator> sqops;
   std::vector<Tensor> tensors;
-  std::map<std::tuple<int, int, bool, int>, int> op_map;
+  ankerl::unordered_dense::map<OpKey, int> op_map;
 
   index_counter ic(orbital_subspaces->num_spaces());
 
@@ -441,7 +449,7 @@ WickTheorem::contraction_tensors_sqops(const OperatorProduct &ops) {
         Index idx(s, ic.next_index(s)); // get next available index
         sqops.push_back(SQOperator(SQOperatorType::Creation, idx));
         lower.push_back(idx);
-        auto key = std::make_tuple(o, s, true, c);
+        auto key = make_op_key(o, s, true, c);
         op_map[key] = n;
         PRINT(PrintLevel::All, print_key(key, n););
         n += 1;
@@ -457,7 +465,7 @@ WickTheorem::contraction_tensors_sqops(const OperatorProduct &ops) {
         Index idx(s, ic.next_index(s)); // get next available index
         sqops.push_back(SQOperator(SQOperatorType::Annihilation, idx));
         upper.push_back(idx);
-        auto key = std::make_tuple(o, s, false, a);
+        auto key = make_op_key(o, s, false, a);
         op_map[key] = n;
         PRINT(PrintLevel::All, print_key(key, n););
         n += 1;
@@ -475,7 +483,7 @@ WickTheorem::contraction_tensors_sqops(const OperatorProduct &ops) {
 std::vector<int> WickTheorem::elements_vec_to_pos(
     const ElementaryContraction &elements_vec,
     std::vector<GraphMatrix> &ops_offset,
-    std::map<std::tuple<int, int, bool, int>, int> &op_map, bool creation) {
+    ankerl::unordered_dense::map<OpKey, int> &op_map, bool creation) {
 
   std::vector<int> result;
 
@@ -491,11 +499,7 @@ std::vector<int> WickTheorem::elements_vec_to_pos(
     int ops_off = creation ? ops_offset[v].cre(s) : ops_offset[v].ann(s);
     for (int i = 0; i < nops; i++) {
       // find the operator corresponding to this leg
-      auto key =
-          creation
-              ? std::make_tuple(v, s, true,
-                                ops_off + i) // start from the leftmost operator
-              : std::make_tuple(v, s, false, ops_off + i);
+      auto key = make_op_key(v, s, creation, ops_off + i);
       if (op_map.count(key) == 0) {
         PRINT(PrintLevel::All, print_key(key, -1););
         cout << " NOT FOUND!!!" << endl;

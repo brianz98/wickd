@@ -52,7 +52,7 @@ is_ops_permutation_valid(const OperatorProduct &ops, std::vector<int> ops_perm,
   // Here we reorder the operators one by one and in the process check if
   // this permutation is allowed. We also keep track of the sign, which
   // depends on the number of second quantized operators permuted
-  scalar_t sign{1};
+  int sign = 1;
   int n = ops_perm.size();
   for (int i = 0; i < n - 1; i++) {
     // Last i elements are already in place
@@ -72,7 +72,7 @@ is_ops_permutation_valid(const OperatorProduct &ops, std::vector<int> ops_perm,
       }
     }
   }
-  return std::pair(true, sign);
+  return std::pair(true, scalar_t(sign));
 }
 
 bool do_contractions_commute(int i, int j, const OperatorProduct &ops,

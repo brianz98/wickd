@@ -17,7 +17,19 @@ void export_Operator(nb::module_ &m) {
       .def(nb::init<const std::string &, const std::vector<int> &,
                     const std::vector<int> &>())
       .def("__repr__", &Operator::str)
-      .def("__str__", &Operator::str);
+      .def("__str__", &Operator::str)
+      .def("label", &Operator::label)
+      .def("cre", &Operator::cre)
+      .def("ann", &Operator::ann)
+      .def("num_ops", &Operator::num_ops)
+      .def("factor", &Operator::factor)
+      .def("adjoint", &Operator::adjoint)
+      .def("__eq__",
+           [](const Operator &l, const Operator &r) { return l == r; })
+      .def("__ne__",
+           [](const Operator &l, const Operator &r) { return l != r; })
+      .def("__lt__",
+           [](const Operator &l, const Operator &r) { return l < r; });
   m.def("diag_operator", &make_diag_operator, "Create a Operator object");
 }
 
@@ -98,5 +110,6 @@ void export_OperatorProduct(nb::module_ &m) {
   nb::class_<OperatorProduct>(m, "OperatorProduct")
       .def(nb::init<>())
       .def("__len__", &OperatorProduct::size)
-      .def("num_ops", &OperatorProduct::num_ops);
+      .def("num_ops", &OperatorProduct::num_ops)
+      .def("canonicalize", &OperatorProduct::canonicalize);
 }

@@ -42,3 +42,4 @@ pywickd.files
 pywickd.includes
 
 build/**
+local/**

@@ -17,6 +17,8 @@ void export_Equation(nb::module_ &m) {
       .def("rhs_factor", &Equation::rhs_factor)
       .def("__repr__", &Equation::str)
       .def("__str__", &Equation::str)
+      .def("__eq__",
+           [](const Equation &l, const Equation &r) { return l == r; })
       .def("latex", &Equation::latex)
       .def("compile", &Equation::compile);
 }

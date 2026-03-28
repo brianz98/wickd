@@ -3,6 +3,7 @@
 #include <string>
 
 #include "../helpers/product.hpp"
+#include "helpers/hash_utils.hpp"
 #include "helpers/orbital_space.h"
 #include "index.h"
 
@@ -13,7 +14,7 @@ enum class SQOperatorType {
 
 class SQOperator {
 
-  using index_map_t = std::map<Index, Index>;
+  using index_map_t = ::index_map_t;
 
 public:
   SQOperator(SQOperatorType type, Index index);
@@ -89,3 +90,13 @@ std::ostream &operator<<(std::ostream &os, const SQOperator &op);
 
 /// Canonicalize a product of operators
 scalar_t canonicalize_sqops(Product<SQOperator> &sqops, bool reversed);
+
+// Hash specialization for SQOperator (pair<SQOperatorType, Index>)
+template <> struct ankerl::unordered_dense::hash<SQOperator> {
+  using is_avalanching = void;
+  uint64_t operator()(SQOperator const &op) const noexcept {
+    auto h = hash_utils::hash_first(op.index());
+    hash_utils::hash_combine(h, static_cast<int>(op.type()));
+    return h;
+  }
+};

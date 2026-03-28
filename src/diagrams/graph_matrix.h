@@ -2,9 +2,11 @@
 
 #include <array>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "../wickd-def.h"
+#include "helpers/hash_utils.hpp"
 
 /// A class to keep track of creation and annilation operators,
 /// and their contractions, which we call a graph matrix.
@@ -87,3 +89,13 @@ std::string to_string(const std::vector<GraphMatrix> &elements_vec);
 std::string signature(const GraphMatrix &graph_matrix);
 
 std::string signature(const std::vector<GraphMatrix> &elements_vec);
+
+/// Hash function for GraphMatrix
+template <> struct ankerl::unordered_dense::hash<GraphMatrix> {
+  using is_avalanching = void;
+  uint64_t operator()(GraphMatrix const &gm) const noexcept {
+    const auto &e = gm.elements();
+    return hash_utils::hash_first(
+        std::string_view{reinterpret_cast<const char *>(e.data()), sizeof(e)});
+  }
+};

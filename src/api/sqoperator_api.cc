@@ -28,7 +28,13 @@ void export_SQOperator(nb::module_ &m) {
       .def("__eq__",
            [](const SQOperator &l, const SQOperator &r) { return l == r; })
       .def("latex", &SQOperator::latex)
-      .def("normal_ordered_less", &SQOperator::normal_ordered_less);
+      .def("compile", &SQOperator::compile)
+      .def("normal_ordered_less", &SQOperator::normal_ordered_less)
+      .def("space", &SQOperator::space)
+      .def("op_symbol", &SQOperator::op_symbol)
+      .def("is_creation", &SQOperator::is_creation)
+      .def("is_quasiparticle_creation", &SQOperator::is_quasiparticle_creation)
+      .def("adjoint", &SQOperator::adjoint);
 
   m.def("sqoperator", &make_sqoperator, "index"_a, "type"_a);
   m.def(

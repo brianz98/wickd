@@ -15,14 +15,14 @@
 Expression::Expression() : Algebra<Expression, SymbolicTerm, scalar_t>() {}
 
 Expression &Expression::canonicalize() {
-  std::map<SymbolicTerm, scalar_t> canonical_terms;
+  vecspace_t canonical_terms;
   for (const auto &[k, v] : terms_) {
-    SymbolicTerm term = k;
+    SymbolicTerm term{k};
     scalar_t factor = term.canonicalize();
     factor *= v;
     add_to_map(canonical_terms, term, factor);
   }
-  terms_ = canonical_terms;
+  terms_ = std::move(canonical_terms); // move to avoid copying
   return *this;
 }
 
@@ -35,24 +35,28 @@ Expression Expression::adjoint() const {
 }
 
 Expression &Expression::reindex(index_map_t &idx_map) {
-  std::map<SymbolicTerm, scalar_t> reindexed_terms;
-  for (auto &kv : terms_) {
-    SymbolicTerm term = kv.first;
+  vecspace_t reindexed_terms;
+  for (const auto &[k, v] : terms_) {
+    SymbolicTerm term{k};
     term.reindex(idx_map);
-    add_to_map(reindexed_terms, term, kv.second);
+    add_to_map(reindexed_terms, term, v);
   }
+  terms_ = std::move(reindexed_terms);
   return *this;
 }
 
 bool Expression::operator==(const Expression &other) {
-  return (terms_.size() == other.terms_.size()) and
-         std::equal(terms_.begin(), terms_.end(), other.terms_.begin());
+  return terms_ == other.terms_;
 }
 
 std::string Expression::str() const {
+  std::vector<std::pair<SymbolicTerm, scalar_t>> sorted_terms(terms_.begin(),
+                                                              terms_.end());
+  std::sort(sorted_terms.begin(), sorted_terms.end(),
+            [](const auto &a, const auto &b) { return a.first < b.first; });
   std::vector<std::string> str_vec;
   int n = 0;
-  for (const auto &[symterm, c] : terms_) {
+  for (const auto &[symterm, c] : sorted_terms) {
     std::string symterm_str = symterm.str();
     std::string factor_str;
 
@@ -105,9 +109,13 @@ std::string Expression::str() const {
 }
 
 std::string Expression::latex(const std::string &sep) const {
+  std::vector<std::pair<SymbolicTerm, scalar_t>> sorted_terms(terms_.begin(),
+                                                              terms_.end());
+  std::sort(sorted_terms.begin(), sorted_terms.end(),
+            [](const auto &a, const auto &b) { return a.first < b.first; });
   std::vector<std::string> str_vec;
   bool first = true;
-  for (const auto &[term, factor] : terms_) {
+  for (const auto &[term, factor] : sorted_terms) {
     str_vec.push_back(factor.latex(first) + ' ' + term.latex());
     first = false;
   }
@@ -225,7 +233,7 @@ Expression make_expression(std::string_view s, SymmetryType symmetry) {
 
   std::regex factor_re, operator_re, normal_ordered_re, tensor_re;
   if (syntax == TensorSyntax::wickd) {
-    tensor_re = std::regex(R"(([a-zA-Z0-9]+\^\{[\w,\d]*\}_\{[\w,\d]*\}))");
+    tensor_re = std::regex(R"(([a-zA-Z0-9]+\^\{[\w,\d]*\}_\{[\w,\d]*\}(?:\[[A-SN*,]+\])?))");
     operator_re = std::regex(R"([ab]([+-]{1,1})\(([\w\d]*)\))");
     factor_re = std::regex(R"(^\s*([+-]?\d*\/?\d*)\s*)");
     normal_ordered_re = std::regex(R"((?:\{(?:\s*a[+-]\([\w\d]+\))+\s*\}))");

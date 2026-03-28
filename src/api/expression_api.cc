@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <nanobind/make_iterator.h>
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/map.h>
@@ -17,6 +18,35 @@ void export_Expression(nb::module_ &m) {
       .def(nb::init<>())
       .def("__repr__", &Expression::str)
       .def("__str__", &Expression::str)
+      .def("repr",
+           [](const Expression &e) {
+             std::string sym_name[] = {"Symmetric", "Antisymmetric",
+                                       "Nonsymmetric"};
+             std::string result;
+             std::vector<std::pair<SymbolicTerm, scalar_t>> sorted(e.begin(),
+                                                                    e.end());
+             std::sort(sorted.begin(), sorted.end(),
+                       [](const auto &a, const auto &b) {
+                         return a.first < b.first;
+                       });
+             for (const auto &[sterm, coeff] : sorted) {
+               result += "coeff: " + coeff.repr() + "\n";
+               result += "  normal_ordered: " +
+                         std::string(sterm.normal_ordered() ? "true" : "false") +
+                         "\n";
+               for (const auto &t : sterm.tensors()) {
+                 result += "  tensor: " + t.str() + "\n";
+                 result += "    symmetry: " + sym_name[static_cast<int>(t.symmetry())] + "\n";
+                 result += "    is_complex_conjugate: " +
+                           std::string(t.is_complex_conjugate() ? "true" : "false") +
+                           "\n";
+               }
+               for (const auto &op : sterm.ops()) {
+                 result += "  op: " + op.str() + "\n";
+               }
+             }
+             return result;
+           })
       .def("__len__", &Expression::size)
       .def("__eq__", &Expression::operator==)
       .def("__neg__", [](const Expression &rhs) { return -rhs; })
@@ -64,12 +94,19 @@ void export_Expression(nb::module_ &m) {
           nb::is_operator()) // Bind in-place addition with Term
       .def(
           "__iter__",
-          [](Expression &e) {
-            return nb::make_iterator(
-                nb::type<std::map<SymbolicTerm, scalar_t>>(), "iterator",
-                e.begin(), e.end());
-          },
-          nb::keep_alive<0, 1>())
+          [](const Expression &e) -> nb::object {
+            std::vector<std::pair<SymbolicTerm, scalar_t>> sorted(e.begin(),
+                                                                   e.end());
+            std::sort(sorted.begin(), sorted.end(),
+                      [](const auto &a, const auto &b) {
+                        return a.first < b.first;
+                      });
+            nb::list lst;
+            for (const auto &p : sorted) {
+              lst.append(nb::cast(p));
+            }
+            return lst.attr("__iter__")();
+          })
       .def("dot", &Expression::dot, "rhs"_a)
       .def("norm", &Expression::norm)
       .def("latex", &Expression::latex, "sep"_a = " \\\\ \n")

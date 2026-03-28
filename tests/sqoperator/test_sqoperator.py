@@ -73,7 +73,50 @@ def test_sqoperator3():
     assert not w.ann("v_0").normal_ordered_less(w.ann("c_0"))
 
 
+def test_sqoperator_new_accessors():
+    """Test accessors added to complete the Python API"""
+    w.reset_space()
+    w.add_space("o", "fermion", "occupied", ["i", "j"])   # space index 0
+    w.add_space("v", "fermion", "unoccupied", ["a", "b"]) # space index 1
+
+    cop = w.cre("v_0")
+    aop = w.ann("o_0")
+
+    # space() returns the integer space index
+    assert cop.space() == 1  # v is space 1
+    assert aop.space() == 0  # o is space 0
+
+    # is_creation()
+    assert cop.is_creation()
+    assert not aop.is_creation()
+
+    # is_quasiparticle_creation(): cre of unoccupied = particle creation = True
+    #                               ann of occupied  = hole creation      = True
+    assert cop.is_quasiparticle_creation()
+    assert aop.is_quasiparticle_creation()
+    assert not w.ann("v_0").is_quasiparticle_creation()
+    assert not w.cre("o_0").is_quasiparticle_creation()
+
+    # op_symbol() returns the field-type base symbol: "a" for fermions, "b" for bosons
+    assert cop.op_symbol() == "a"
+    assert aop.op_symbol() == "a"
+
+    # adjoint(): cre → ann, ann → cre; index preserved
+    adj = cop.adjoint()
+    assert adj.type() == w.type.ann
+    assert adj.index() == cop.index()
+    adj2 = aop.adjoint()
+    assert adj2.type() == w.type.cre
+    assert adj2.index() == aop.index()
+
+    # compile() is exposed but not implemented (raises RuntimeError)
+    import pytest
+    with pytest.raises(RuntimeError):
+        cop.compile("einsum")
+
+
 if __name__ == "__main__":
     test_sqoperator()
     test_sqoperator2()
     test_sqoperator3()
+    test_sqoperator_new_accessors()

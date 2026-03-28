@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "helpers/helpers.h"
+#include "helpers/unordered_dense.h"
 
 /// Represents a vector space of objects of type T over the field F
 template <typename Derived, class T, class F> class Algebra {
@@ -11,7 +12,7 @@ template <typename Derived, class T, class F> class Algebra {
 public:
   /// @brief A type used to store an element of the algebra. Uses a map from
   /// elements of type T to field elements of type F
-  using vecspace_t = std::map<T, F>;
+  using vecspace_t = ankerl::unordered_dense::map<T, F>;
 
   /// @brief Default constructor
   Algebra() {}

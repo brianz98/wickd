@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "graph_matrix.h"
+#include "helpers/hash_utils.hpp"
 #include "wickd-def.h"
 
 /// A class to represent operators
@@ -74,3 +75,13 @@ Operator make_diag_operator(const std::string &label,
 
 /// Return the particle rank of a vector of operators
 int sum_num_ops(const std::vector<Operator> &ops);
+
+/// Hash function for Operator
+template <> struct ankerl::unordered_dense::hash<Operator> {
+  using is_avalanching = void;
+  uint64_t operator()(Operator const &op) const noexcept {
+    auto h = hash_utils::hash_first(op.label());
+    hash_utils::hash_combine(h, op.graph_matrix());
+    return h;
+  }
+};

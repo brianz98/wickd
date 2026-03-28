@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "helpers/helpers.h"
 #include "helpers/orbital_space.h"
 
@@ -31,11 +33,16 @@ void OperatorExpression::canonicalize() {
 }
 
 std::string OperatorExpression::str() const {
+  // Collect and sort terms for deterministic output
+  std::vector<std::pair<OperatorProduct, scalar_t>> sorted_terms(
+      terms_.begin(), terms_.end());
+  std::sort(sorted_terms.begin(), sorted_terms.end(),
+            [](const auto &a, const auto &b) { return a.first < b.first; });
   std::vector<std::string> str_vec;
-  for (auto &vec_dop_factor : terms_) {
+  for (auto &[prod, scalar] : sorted_terms) {
     std::string s;
-    s += vec_dop_factor.second.str(true);
-    for (auto &dop : vec_dop_factor.first) {
+    s += scalar.str(true);
+    for (auto &dop : prod) {
       s += ' ' + dop.str();
     }
     str_vec.push_back(s);

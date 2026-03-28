@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <iostream>
-#include <map>
 #include <numeric>
 #include <optional>
 #include <regex>
@@ -55,8 +54,9 @@ public:
   }
 };
 
-template <class T, class F>
-void add_to_map(std::map<T, F> &m, const T &key, const F &value) {
+template <class Map>
+void add_to_map(Map &m, const typename Map::key_type &key,
+                const typename Map::mapped_type &value) {
   // don't add a zero term
   if (value == 0)
     return;

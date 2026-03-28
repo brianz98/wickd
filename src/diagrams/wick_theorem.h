@@ -1,8 +1,35 @@
 #pragma once
 
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include "helpers/hash_utils.hpp"
+
+/// Key that identifies one leg of one operator in a contraction:
+///   v        = operator index in the product
+///   s        = orbital space index
+///   creation = 1 for creation, 0 for annihilation
+///   i        = leg index within (v, s, creation)
+struct OpKey {
+  uint16_t v;
+  uint16_t s;
+  uint16_t creation;
+  uint16_t i;
+  bool operator==(const OpKey &) const = default;
+};
+
+template <> struct ankerl::unordered_dense::hash<OpKey> {
+  using is_avalanching = void;
+  uint64_t operator()(OpKey const &k) const noexcept {
+    uint64_t v = (static_cast<uint64_t>(k.v) << 48) |
+                 (static_cast<uint64_t>(k.s) << 32) |
+                 (static_cast<uint64_t>(k.creation) << 16) |
+                 static_cast<uint64_t>(k.i);
+    return hash_utils::hash_first(v);
+  }
+};
 
 class SQOperator;
 class Tensor;
@@ -167,13 +194,13 @@ private:
 
   /// Return the tensors and operators correspoding to a product of operators
   std::tuple<std::vector<Tensor>, std::vector<SQOperator>,
-             std::map<std::tuple<int, int, bool, int>, int>>
+             ankerl::unordered_dense::map<OpKey, int>>
   contraction_tensors_sqops(const OperatorProduct &ops);
 
   std::vector<int>
   elements_vec_to_pos(const ElementaryContraction &elements_vec,
                       std::vector<GraphMatrix> &ops_offset,
-                      std::map<std::tuple<int, int, bool, int>, int> &op_map,
+                      ankerl::unordered_dense::map<OpKey, int> &op_map,
                       bool creation);
 
   /// Return the combinatorial factor corresponding to a contraction pattern
