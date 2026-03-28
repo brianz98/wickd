@@ -112,7 +112,7 @@ std::ostream &operator<<(std::ostream &os, const Tensor &tensor);
 /// Hash function for Tensor
 template <> struct ankerl::unordered_dense::hash<Tensor> {
   uint64_t operator()(Tensor const &t) const noexcept {
-    uint64_t h = ankerl::unordered_dense::hash<std::string>{}(t.label());
+    auto h = hash_utils::hash_first(t.label());
     hash_utils::hash_range(h, t.lower());
     hash_utils::hash_range(h, t.upper());
     hash_utils::hash_combine(h, static_cast<int>(t.symmetry()));

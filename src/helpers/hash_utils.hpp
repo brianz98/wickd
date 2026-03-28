@@ -9,12 +9,18 @@
 ///   hash_range(seed, range)    — hash_combine every element of a range
 ///
 /// Typical usage:
-///   uint64_t h = ankerl::unordered_dense::hash<FirstField>{}(obj.first_field());
+///   auto h = hash_utils::hash_first(obj.first_field());
 ///   hash_utils::hash_combine(h, obj.second_field());
 ///   hash_utils::hash_range(h, obj.collection());
 ///   return h;
 
 namespace hash_utils {
+
+/// Hash a single value — use this to seed h for the first field.
+template <typename T>
+inline uint64_t hash_first(const T &v) {
+  return ankerl::unordered_dense::hash<T>{}(v);
+}
 
 /// Mix a pre-computed 64-bit hash value into the running seed.
 /// Uses the boost::hash_combine mixing step.

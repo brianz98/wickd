@@ -144,7 +144,7 @@ std::pair<Product<SQOperator>, bool> operator_product(const SymbolicTerm &lhs,
 /// vector<Tensor>>)
 template <> struct ankerl::unordered_dense::hash<SymbolicTerm> {
   uint64_t operator()(SymbolicTerm const &t) const noexcept {
-    uint64_t h = ankerl::unordered_dense::hash<bool>{}(t.normal_ordered());
+    auto h = hash_utils::hash_first(t.normal_ordered());
     hash_utils::hash_range(h, t.ops());
     hash_utils::hash_range(h, t.tensors());
     return h;

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "helpers/unordered_dense.h"
+#include "helpers/hash_utils.hpp"
 #include "wickd-def.h"
 
 /**
@@ -72,7 +72,7 @@ template <> struct ankerl::unordered_dense::hash<Index> {
     std::uint64_t v =
         (static_cast<std::uint64_t>(idx.space()) << 32) |
         static_cast<std::uint64_t>(static_cast<uint32_t>(idx.pos()));
-    return ankerl::unordered_dense::hash<uint64_t>{}(v);
+    return hash_utils::hash_first(v);
   }
 };
 

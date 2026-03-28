@@ -80,7 +80,7 @@ int sum_num_ops(const std::vector<Operator> &ops);
 template <> struct ankerl::unordered_dense::hash<Operator> {
   using is_avalanching = void;
   uint64_t operator()(Operator const &op) const noexcept {
-    uint64_t h = ankerl::unordered_dense::hash<std::string>{}(op.label());
+    auto h = hash_utils::hash_first(op.label());
     hash_utils::hash_combine(h, op.graph_matrix());
     return h;
   }

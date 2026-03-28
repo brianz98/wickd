@@ -95,7 +95,7 @@ scalar_t canonicalize_sqops(Product<SQOperator> &sqops, bool reversed);
 template <> struct ankerl::unordered_dense::hash<SQOperator> {
   using is_avalanching = void;
   uint64_t operator()(SQOperator const &op) const noexcept {
-    uint64_t h = ankerl::unordered_dense::hash<Index>{}(op.index());
+    auto h = hash_utils::hash_first(op.index());
     hash_utils::hash_combine(h, static_cast<int>(op.type()));
     return h;
   }

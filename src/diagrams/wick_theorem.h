@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "helpers/unordered_dense.h"
+#include "helpers/hash_utils.hpp"
 
 /// Key that identifies one leg of one operator in a contraction:
 ///   v        = operator index in the product
@@ -27,7 +27,7 @@ template <> struct ankerl::unordered_dense::hash<OpKey> {
                  (static_cast<uint64_t>(k.s) << 32) |
                  (static_cast<uint64_t>(k.creation) << 16) |
                  static_cast<uint64_t>(k.i);
-    return ankerl::unordered_dense::hash<uint64_t>{}(v);
+    return hash_utils::hash_first(v);
   }
 };
 
