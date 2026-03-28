@@ -32,13 +32,15 @@ def test_expression2():
 
     e = w.expression("a-(p_2) a+(p_1)")
     expr = e.vacuum_normal_ordered()
-    test_expr = w.expression("-a+(p_1) a-(p_2)") + w.expression("delta^{p1}_{p2}")
+    test_expr = w.expression("-a+(p_1) a-(p_2)") + w.expression(
+        "delta^{p1}_{p2}[N]"
+    )
     assert expr == test_expr
 
     e = w.expression("a-(p_2) a+(h_1) a-(h_2) a+(p_1)")
     expr = e.vacuum_normal_ordered()
     test_expr = w.expression("-a+(h_1) a+(p_1) a-(p_2) a-(h_2)") + w.expression(
-        "delta^{p1}_{p2} a+(h1) a-(h2)"
+        "delta^{p1}_{p2}[N] a+(h1) a-(h2)"
     )
     assert expr == test_expr
 

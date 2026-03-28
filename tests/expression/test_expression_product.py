@@ -13,7 +13,7 @@ def test_expression_product1():
     e3 = e1 @ e2
     e3 = e3.vacuum_normal_ordered()
     test_e3 = w.expression("a+(g_0) a+(g_2) a-(g_3) a-(g_1)") + w.expression(
-        "delta^{g2}_{g1} a+(g_0) a-(g_3)"
+        "delta^{g2}_{g1}[N] a+(g_0) a-(g_3)"
     )
     assert e3 == test_e3
 

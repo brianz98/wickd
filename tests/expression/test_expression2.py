@@ -79,7 +79,7 @@ def test_expression2():
     # test different-type unordered
     e = w.expression("a-(g_0) a+(g_1)")
     expr = e.vacuum_normal_ordered()
-    test_expr = w.expression("-a+(g1) a-(g0)") + w.expression("+delta^{g1}_{g0}")
+    test_expr = w.expression("-a+(g1) a-(g0)") + w.expression("+delta^{g1}_{g0}[N]")
     assert expr == test_expr
 
     # test different-type unordered ignoring contractions of different indices
@@ -113,12 +113,12 @@ def test_expression3():
 
     c1 = (o @ k) - (k @ o)
     c1 = c1.vacuum_normal_ordered(True)
-    test_c1 = w.expression("t^{}_{} a+(g_3) a-(g_2)")
+    test_c1 = w.expression("t^{}_{}[A,*] a+(g_3) a-(g_2)")
     assert c1 == test_c1
 
     c2 = (c1 @ k) - (k @ c1)
     c2 = c2.vacuum_normal_ordered(True)
-    test_c2 = w.expression("-t^{}_{} t^{}_{} a+(g1) a-(g2)")
+    test_c2 = w.expression("-t^{}_{} t^{}_{}[A,*] a+(g1) a-(g2)")
     assert c2 == test_c2
 
 
@@ -135,13 +135,13 @@ def test_expression4():
 
     e = w.expression("a-(p_2) a+(p_1)")
     expr = e.vacuum_normal_ordered()
-    test_expr = w.expression("-a+(p_1) a-(p_2)") + w.expression("delta^{p1}_{p2}")
+    test_expr = w.expression("-a+(p_1) a-(p_2)") + w.expression("delta^{p1}_{p2}[N]")
     assert expr == test_expr
 
     e = w.expression("a-(p_2) a+(h_1) a-(h_2) a+(p_1)")
     expr = e.vacuum_normal_ordered()
     test_expr = w.expression("-a+(h_1) a+(p_1) a-(p_2) a-(h_2)") + w.expression(
-        "delta^{p1}_{p2} a+(h1) a-(h2)"
+        "delta^{p1}_{p2}[N] a+(h1) a-(h2)"
     )
 
     assert expr == test_expr

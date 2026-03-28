@@ -45,5 +45,17 @@ def test_rational():
         assert w.make_rational("-/2")
 
 
+def test_rational_new_operators():
+    """Test __ne__ and __neg__ added to the Python API"""
+    assert w.rational(1, 2) != w.rational(1, 3)
+    assert not (w.rational(1, 2) != w.rational(1, 2))
+
+    neg = -w.rational(3, 4)
+    assert neg == w.rational(-3, 4)
+    assert -neg == w.rational(3, 4)
+    assert -w.rational(0, 1) == w.rational(0, 1)
+
+
 if __name__ == "__main__":
     test_rational()
+    test_rational_new_operators()
