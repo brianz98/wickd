@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <map>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -81,6 +80,9 @@ public:
 
   scalar_t simplify();
 
+  /// Sort tensors into a canonical order (does not reindex)
+  void sort_tensors();
+
   /// Comparison operator used for sorting
   bool operator<(const SymbolicTerm &term) const;
 
@@ -138,10 +140,11 @@ std::ostream &operator<<(std::ostream &os,
 std::pair<Product<SQOperator>, bool> operator_product(const SymbolicTerm &lhs,
                                                       const SymbolicTerm &rhs);
 
-template <>
-struct ankerl::unordered_dense::hash<SymbolicTerm> {
+/// Hash specialization for SymbolicTerm (pair<Product<SQOperator>,
+/// vector<Tensor>>)
+template <> struct ankerl::unordered_dense::hash<SymbolicTerm> {
   uint64_t operator()(SymbolicTerm const &t) const noexcept {
-    uint64_t h = 0; // normal_ordered_ is not part of operator==
+    uint64_t h = ankerl::unordered_dense::hash<bool>{}(t.normal_ordered());
     for (const auto &op : t.ops()) {
       uint64_t oh = ankerl::unordered_dense::hash<SQOperator>{}(op);
       h ^= oh + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);

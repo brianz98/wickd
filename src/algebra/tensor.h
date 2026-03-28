@@ -43,6 +43,9 @@ public:
   /// Set the upper indices
   void set_upper(const std::vector<Index> &indices) { upper_ = indices; }
 
+  /// Set the complex conjugate flag
+  void set_complex_conjugate(bool val) { is_complex_conjugate_ = val; }
+
   /// Return a vector containing all indices
   std::vector<Index> indices() const;
 
@@ -117,7 +120,10 @@ struct ankerl::unordered_dense::hash<Tensor> {
       uint64_t oh = ankerl::unordered_dense::hash<Index>{}(idx);
       h ^= oh + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
     }
-    // symmetry and conjugate are NOT part of operator==, so omit them
+    h ^= ankerl::unordered_dense::hash<int>{}(static_cast<int>(t.symmetry())) +
+         0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
+    h ^= ankerl::unordered_dense::hash<bool>{}(t.is_complex_conjugate()) +
+         0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
     return h;
   }
 };

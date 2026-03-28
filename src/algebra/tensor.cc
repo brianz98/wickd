@@ -29,22 +29,21 @@ int Tensor::symmetry_factor() const {
 }
 
 bool Tensor::operator<(Tensor const &other) const {
-  // Compare the labels
-  if (label_ < other.label_)
-    return true;
-  if (label_ > other.label_)
-    return false;
-  // Compare the lower indices
-  if (lower_ < other.lower_)
-    return true;
-  if (lower_ > other.lower_)
-    return false;
-  return upper_ < other.upper_;
+  if (label_ < other.label_) return true;
+  if (label_ > other.label_) return false;
+  if (lower_ < other.lower_) return true;
+  if (lower_ > other.lower_) return false;
+  if (upper_ < other.upper_) return true;
+  if (upper_ > other.upper_) return false;
+  if (symmetry_ < other.symmetry_) return true;
+  if (symmetry_ > other.symmetry_) return false;
+  return is_complex_conjugate_ < other.is_complex_conjugate_;
 }
 
 bool Tensor::operator==(Tensor const &other) const {
   return (label_ == other.label_) and (lower_ == other.lower_) and
-         (upper_ == other.upper_);
+         (upper_ == other.upper_) and (symmetry_ == other.symmetry_) and
+         (is_complex_conjugate_ == other.is_complex_conjugate_);
 }
 
 std::vector<Index> Tensor::indices() const {
@@ -76,8 +75,7 @@ void Tensor::reindex(index_map_t &idx_map) {
 
 scalar_t Tensor::canonicalize() {
   if (symmetry_ == SymmetryType::Nonsymmetric) {
-    throw std::runtime_error(
-        "Tensor::canonicalize cannot canonicalize a nonsymmetric tensor");
+    return scalar_t(1);
   }
   scalar_t sign = 1;
   auto upper_indices = this->upper();
@@ -106,8 +104,27 @@ std::string Tensor::str() const {
   for (const Index &index : lower_) {
     str_vec_lower.push_back(index.str());
   }
-  return (label_ + "^{" + join(str_vec_upper, ",") + "}_{" +
-          join(str_vec_lower, ",") + "}");
+  std::string base = label_ + "^{" + join(str_vec_upper, ",") + "}_{" +
+                     join(str_vec_lower, ",") + "}";
+  // Emit modifiers only when non-default (default: Antisymmetric, not conjugate)
+  bool non_default_sym = (symmetry_ != SymmetryType::Antisymmetric);
+  bool non_default_conj = is_complex_conjugate_;
+  if (non_default_sym || non_default_conj) {
+    std::string sym_char;
+    if (symmetry_ == SymmetryType::Symmetric) {
+      sym_char = "S";
+    } else if (symmetry_ == SymmetryType::Nonsymmetric) {
+      sym_char = "N";
+    } else {
+      sym_char = "A";
+    }
+    std::string modifier = sym_char;
+    if (non_default_conj) {
+      modifier += ",*";
+    }
+    base += "[" + modifier + "]";
+  }
+  return base;
 }
 
 std::string Tensor::latex() const {
@@ -180,8 +197,9 @@ Tensor make_tensor(const std::string &label,
 
 Tensor make_tensor_from_str(const std::string &s, SymmetryType symmetry) {
   std::smatch sm;
-  auto const tensor_re =
-      std::regex("([a-zA-Z0-9]+)\\^\\{([\\w,\\s]*)\\}_\\{([\\w,\\s]*)\\}");
+  auto const tensor_re = std::regex(
+      "([a-zA-Z0-9]+)\\^\\{([\\w,\\s]*)\\}_\\{([\\w,\\s]*)\\}"
+      "(?:\\[([A-SN*,]+)\\])?");
   auto m = std::regex_match(s, sm, tensor_re);
   if (not m) {
     throw std::runtime_error("\nCould not convert the string " + s +
@@ -190,7 +208,24 @@ Tensor make_tensor_from_str(const std::string &s, SymmetryType symmetry) {
   std::string label = sm[1];
   auto upper = make_indices_from_str(sm[2]);
   auto lower = make_indices_from_str(sm[3]);
-  return Tensor(label, lower, upper, symmetry);
+  bool is_conjugate = false;
+  // If modifiers are present, override symmetry and/or conjugate flag
+  if (sm[4].matched) {
+    std::string mods = sm[4];
+    if (mods.find('S') != std::string::npos) {
+      symmetry = SymmetryType::Symmetric;
+    } else if (mods.find('N') != std::string::npos) {
+      symmetry = SymmetryType::Nonsymmetric;
+    } else if (mods.find('A') != std::string::npos) {
+      symmetry = SymmetryType::Antisymmetric;
+    }
+    if (mods.find('*') != std::string::npos) {
+      is_conjugate = true;
+    }
+  }
+  Tensor t(label, lower, upper, symmetry);
+  t.set_complex_conjugate(is_conjugate);
+  return t;
 }
 
 // std::string Tensor::compile() {

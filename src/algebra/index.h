@@ -63,16 +63,17 @@ private:
   std::pair<int, int> index_;
 };
 
-// Hash specialization for Index (pair<int,int>) — required for unordered_dense.
-template <>
-struct ankerl::unordered_dense::hash<Index> {
-    using is_avalanching = void;
-    uint64_t operator()(Index const& idx) const noexcept {
-        // Encode space and pos as a 64-bit integer and hash it via wyhash.
-        uint64_t v = (static_cast<uint64_t>(idx.space()) << 32) |
-                     static_cast<uint64_t>(static_cast<uint32_t>(idx.pos()));
-        return ankerl::unordered_dense::hash<uint64_t>{}(v);
-    }
+// Hash specialization for Index (pair<int,int>)
+template <> struct ankerl::unordered_dense::hash<Index> {
+  using is_avalanching = void; // skip internal mixing step
+  // pack [space, pos] into a 64-bit integer and hash it
+  uint64_t operator()(Index const &idx) const noexcept {
+    // Encode space and pos as a 64-bit integer and hash it via wyhash.
+    std::uint64_t v =
+        (static_cast<std::uint64_t>(idx.space()) << 32) |
+        static_cast<std::uint64_t>(static_cast<uint32_t>(idx.pos()));
+    return ankerl::unordered_dense::hash<uint64_t>{}(v);
+  }
 };
 
 // A Index -> Index map used for reindexing (flat open-addressed hash map)

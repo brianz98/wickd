@@ -104,6 +104,10 @@ void SymbolicTerm::reindex(index_map_t &idx_map) {
   }
 }
 
+void SymbolicTerm::sort_tensors() {
+  std::sort(tensors_.begin(), tensors_.end());
+}
+
 #define NEW_CANONICALIZATION 1
 scalar_t SymbolicTerm::canonicalize() {
   scalar_t factor(1);
@@ -365,7 +369,8 @@ bool SymbolicTerm::operator<(const SymbolicTerm &other) const {
 }
 
 bool SymbolicTerm::operator==(const SymbolicTerm &other) const {
-  return (tensors_ == other.tensors_) and (operators_ == other.operators_);
+  return (normal_ordered_ == other.normal_ordered_) and
+         (tensors_ == other.tensors_) and (operators_ == other.operators_);
 }
 
 std::string SymbolicTerm::str() const {

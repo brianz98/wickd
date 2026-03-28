@@ -27,6 +27,9 @@ void export_rational(nb::module_ &m) {
       .def("__float__", &rational::to_double)
       .def("__eq__",
            [](const rational &lhs, const rational &rhs) { return lhs == rhs; })
+      .def("__ne__",
+           [](const rational &lhs, const rational &rhs) { return lhs != rhs; })
+      .def("__neg__", [](const rational &r) { return -r; })
       .def("__add__",
            [](const rational &lhs, const rational &rhs) { return lhs + rhs; })
       .def("__sub__",

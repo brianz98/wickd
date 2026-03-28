@@ -26,7 +26,9 @@ Expression::vacuum_normal_ordered(bool only_same_index_contractions) const {
   for (const auto &[symterm, c] : terms()) {
     auto new_terms = symterm.vacuum_normal_order(only_same_index_contractions);
     for (const auto &[new_symterm, new_c] : new_terms) {
-      new_expr.add(new_symterm, c * new_c);
+      SymbolicTerm sorted = new_symterm;
+      sorted.sort_tensors();
+      new_expr.add(sorted, c * new_c);
     }
   }
   return new_expr;

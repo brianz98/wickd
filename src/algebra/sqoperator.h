@@ -90,8 +90,8 @@ std::ostream &operator<<(std::ostream &os, const SQOperator &op);
 /// Canonicalize a product of operators
 scalar_t canonicalize_sqops(Product<SQOperator> &sqops, bool reversed);
 
-template <>
-struct ankerl::unordered_dense::hash<SQOperator> {
+// Hash specialization for SQOperator (pair<SQOperatorType, Index>)
+template <> struct ankerl::unordered_dense::hash<SQOperator> {
   using is_avalanching = void;
   uint64_t operator()(SQOperator const &op) const noexcept {
     uint64_t h1 = ankerl::unordered_dense::hash<Index>{}(op.index());
