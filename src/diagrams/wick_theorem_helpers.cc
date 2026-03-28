@@ -9,6 +9,7 @@
 #include "contraction.h"
 #include "operator.h"
 #include "operator_product.h"
+#include "wick_theorem.h"
 
 #include "../algebra/sqoperator.h"
 #include "../algebra/tensor.h"
@@ -47,13 +48,9 @@ void print_key(std::tuple<int, int, bool, int> key, int n) {
        << "] -> " << n << endl;
 }
 
-void print_key(uint32_t key, int n) {
-  int v        = static_cast<int>(key >> 16);
-  int s        = static_cast<int>((key >> 9) & 0x7f);
-  bool creation = (key >> 8) & 1;
-  int i        = static_cast<int>(key & 0xff);
-  cout << "key[graph_matrix = " << v << ", space = " << s
-       << ", creation = " << creation << ", num = " << i << "] -> " << n
+void print_key(OpKey key, int n) {
+  cout << "key[graph_matrix = " << key.v << ", space = " << key.s
+       << ", creation = " << key.creation << ", num = " << key.i << "] -> " << n
        << endl;
 }
 
