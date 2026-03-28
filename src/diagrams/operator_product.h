@@ -21,8 +21,8 @@ public:
 
 OperatorProduct operator*(const OperatorProduct &l, const OperatorProduct &r);
 
-template <>
-struct ankerl::unordered_dense::hash<OperatorProduct> {
+/// Hash function for OperatorProduct
+template <> struct ankerl::unordered_dense::hash<OperatorProduct> {
   uint64_t operator()(OperatorProduct const &op) const noexcept {
     uint64_t h = 0;
     for (const auto &o : op) {

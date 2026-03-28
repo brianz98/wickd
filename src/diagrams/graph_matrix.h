@@ -90,8 +90,8 @@ std::string signature(const GraphMatrix &graph_matrix);
 
 std::string signature(const std::vector<GraphMatrix> &elements_vec);
 
-template <>
-struct ankerl::unordered_dense::hash<GraphMatrix> {
+/// Hash function for GraphMatrix
+template <> struct ankerl::unordered_dense::hash<GraphMatrix> {
   using is_avalanching = void;
   uint64_t operator()(GraphMatrix const &gm) const noexcept {
     const auto &e = gm.elements();

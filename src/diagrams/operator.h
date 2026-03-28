@@ -75,8 +75,8 @@ Operator make_diag_operator(const std::string &label,
 /// Return the particle rank of a vector of operators
 int sum_num_ops(const std::vector<Operator> &ops);
 
-template <>
-struct ankerl::unordered_dense::hash<Operator> {
+/// Hash function for Operator
+template <> struct ankerl::unordered_dense::hash<Operator> {
   using is_avalanching = void;
   uint64_t operator()(Operator const &op) const noexcept {
     uint64_t h1 = ankerl::unordered_dense::hash<std::string>{}(op.label());

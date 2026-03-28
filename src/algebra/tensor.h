@@ -108,8 +108,8 @@ Tensor make_tensor_from_str(const std::string &index, SymmetryType symmetry);
 /// Print to an output stream
 std::ostream &operator<<(std::ostream &os, const Tensor &tensor);
 
-template <>
-struct ankerl::unordered_dense::hash<Tensor> {
+/// Hash function for Tensor
+template <> struct ankerl::unordered_dense::hash<Tensor> {
   uint64_t operator()(Tensor const &t) const noexcept {
     uint64_t h = ankerl::unordered_dense::hash<std::string>{}(t.label());
     for (const auto &idx : t.lower()) {
