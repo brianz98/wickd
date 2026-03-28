@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "graph_matrix.h"
+#include "helpers/hash_utils.hpp"
 #include "wickd-def.h"
 
 /// A class to represent operators
@@ -79,9 +80,8 @@ int sum_num_ops(const std::vector<Operator> &ops);
 template <> struct ankerl::unordered_dense::hash<Operator> {
   using is_avalanching = void;
   uint64_t operator()(Operator const &op) const noexcept {
-    uint64_t h1 = ankerl::unordered_dense::hash<std::string>{}(op.label());
-    uint64_t h2 =
-        ankerl::unordered_dense::hash<GraphMatrix>{}(op.graph_matrix());
-    return h1 ^ (h2 + 0x9e3779b97f4a7c15ULL + (h1 << 6) + (h1 >> 2));
+    uint64_t h = ankerl::unordered_dense::hash<std::string>{}(op.label());
+    hash_utils::hash_combine(h, op.graph_matrix());
+    return h;
   }
 };

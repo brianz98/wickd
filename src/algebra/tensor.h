@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "helpers/hash_utils.hpp"
 #include "index.h"
 #include "wickd-def.h"
 
@@ -112,18 +113,10 @@ std::ostream &operator<<(std::ostream &os, const Tensor &tensor);
 template <> struct ankerl::unordered_dense::hash<Tensor> {
   uint64_t operator()(Tensor const &t) const noexcept {
     uint64_t h = ankerl::unordered_dense::hash<std::string>{}(t.label());
-    for (const auto &idx : t.lower()) {
-      uint64_t oh = ankerl::unordered_dense::hash<Index>{}(idx);
-      h ^= oh + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
-    }
-    for (const auto &idx : t.upper()) {
-      uint64_t oh = ankerl::unordered_dense::hash<Index>{}(idx);
-      h ^= oh + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
-    }
-    h ^= ankerl::unordered_dense::hash<int>{}(static_cast<int>(t.symmetry())) +
-         0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
-    h ^= ankerl::unordered_dense::hash<bool>{}(t.is_complex_conjugate()) +
-         0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
+    hash_utils::hash_range(h, t.lower());
+    hash_utils::hash_range(h, t.upper());
+    hash_utils::hash_combine(h, static_cast<int>(t.symmetry()));
+    hash_utils::hash_combine(h, t.is_complex_conjugate());
     return h;
   }
 };
