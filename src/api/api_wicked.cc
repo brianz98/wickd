@@ -21,6 +21,13 @@ void export_rational(nb::module_ &m);
 
 NB_MODULE(_wickd, m) {
   m.doc() = "wickd python interface";
+  m.def("using_boost_1024_int", []() {
+#ifdef USE_BOOST_1024_INT
+    return true;
+#else
+    return false;
+#endif
+  });
   export_rational(m);
   export_combinatorics(m);
   export_OrbitalSpaceInfo(m);
